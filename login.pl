@@ -12,13 +12,21 @@ my $password = $q->param('password');
 
 if(defined($user) and defined($password)){
   if(checkLogin($user, $password)){
+    my @row = checkLogin($user, $password);
+   print "<?xml version='1.0' encoding='utf-8'?>
+   <user>
+   <owner>$row[0]</owner>
+    <firstName>$row[3]</firstName>
+    <lastName>$row[2]</lastName>
+   </user>";
+   # print $info[0]; 
   }else{
-  print "<?xml version='1.0' encoding='utf-8'>
+  print "<?xml version='1.0' encoding='utf-8'?>
   <user>
   </user>";
   }
 }else{
-  print "<?xml version='1.0' encoding='utf-8'>
+  print "<?xml version='1.0' encoding='utf-8'?>
   <user>
   </user>";
   
@@ -36,23 +44,23 @@ sub checkLogin{
   my $sth = $dbh->prepare($sql);
   $sth->execute($userQuery, $passwordQuery);
   my @row = $sth->fetchrow_array;
-   print "<?xml version='1.0' encoding='utf-8'>
-  <user>
-   <owner>$row[0]</owner>
-   <firstName>$row[3]</firstName>
-   <lastName>$row[2]</lastName>
-  </user>";
+  # print "<?xml version='1.0' encoding='utf-8'?>
+  # <user>
+  # <owner>$row[0]</owner>
+   # <firstName>$row[3]</firstName>
+   # <lastName>$row[2]</lastName>
+   # </user>";
   $sth->finish;
   $dbh->disconnect;
   return @row;
 }
 #sub successLogin{
-#print<?xml version='1.0' encoding='utf-8'>
-# print "<user>
-#  <owner>$row[0]</owner>
-#  <firstName>$row[3]</firstName>
-#  <lastName>$row[2]</lastName>
-# </user>" 
+#print "<?xml version='1.0' encoding='utf-8'?>
+# <user>
+# <owner>$row[0]</owner>
+# <firstName>$row[3]</firstName>
+# <lastName>$row[2]</lastName>
+# </user>"; 
 #}
 #sub showLogin{
 # my $body = << "XML";
