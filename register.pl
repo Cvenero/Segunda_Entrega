@@ -11,7 +11,8 @@ my $user = $q->param('user');
 my $password = $q->param('password');
 my $first = $q->param('first');
 my $last = $q->param('last');
-  
+ 
+  my $sql = "SELECT * FROM User WHERE userName=?";
   if($user){
     my @row = checkLogin($user,$password, $first, $last);
     print "<?xml version='1.0' encoding='utf-8'?>
@@ -35,7 +36,7 @@ sub checkLogin{
   my $password = 'pweb1';
   my $dsn = 'DBI:MariaDB:database=pweb1;host=localhost';
   my $dbh = DBI->connect($dsn, $user, $password) or die("No se pudo conectar!");
-
+  
   my $sql = "INSERT INTO Users VALUES (?,?,?,?)";
   #my $sql = "SELECT * FROM Users WHERE userName=? AND password=?";
   my $sth = $dbh->prepare($sql);
