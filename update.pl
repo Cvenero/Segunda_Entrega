@@ -6,57 +6,34 @@ use DBI;
 
 my $q = CGI->new;
 print $q->header('text/xml;charset=UTF-8');
+#update.pl
+my $owner = $q->param('owner');
+my $title = $q->param('title');
+my $text = $q->param('text');
 
-my $user = $q->param('user');
-my $password = $q->param('password');
+my $user = 'alumno';
+my $password = 'pweb1';
+my $dsn = 'DBI:MariaDB:database=pweb1;host=localhost';
+my $dbh = DBI->connect($dsn, $user, $password) or die("No se pudo conectar!");
 
-if(defined($user) and defined($password)){
-  if(checkLogin($user, $password)){
-    successLogin();
-  }else{
-    showLogin('Usuario o contraseña equivocados, vuela a intentarlo');
-  }
+my $sth1 = $dbh->prepare("UPDATE Articles SET text=? WHERE owner=? AND title=?");
+  $sth1->execute($text,$owner,$title); 
+my $sth = $dbh->prepare("SELECT owner, text FROM Articles WHERE owner=? and title=?");
+  $sth->execute($owner,$title);
+
+my @row = $sth->fetchrow_array;
+  
+if($owner = $row[0] and $title = $row[1]){
+   print "<?xml version='1.0' encoding='utf-8'?>
+    <article>
+     <owner>$row[0]</owner>
+     <text>$row[1]</text>
+    </article>";
 }else{
-  showLogin()
+   print "<?xml version='1.0' encoding='utf-8'?>
+  <article>
+  </article>";
 }
-sub checkLogin{
-  my $userQuery = $_[0];
-  my $passwordQuery = $_[1];
-
-  my $user = 'alumno';
-  my $password = 'pweb1';
-  my $dsn = 'DBI:MariaDB:database=pweb1;host=localhost';
-  my $dbh = DBI->connect($dsn, $user, $password) or die("No se pudo conectar!");
-
-  my $sql = "SELECT * FROM login WHERE username=? AND passwd=?";
-  my $sth = $dbh->prepare($sql);
-  $sth->execute($userQuery, $passwordQuery);
-  my @row = $sth->fetchrow_array;
-  $sth->finish;
-  $dbh->disconnect;
-  return @row;
-}
-
-sub successLogin{
-  my $body=<<"HTML";
-    <h1>Bienvenido</h1>
-HTML
-  print(renderBody("Sistema", "", $body));
-}
-sub showLogin{
-  my $error = $_[0];
-  my $body = << "XML";
-XML
-  print(renderBody("Login", "", $body));
-}
-sub renderBody{
-  my $title = $_[0];
-  my $css = $_[1];
-  my $body = $_[2];
-
-  my $xml = << "XML";
-<?xml version='1.0' encoding='utf-8'?>
-
-XML
-  return $xml;
-}
+$sth->finish;
+$sth1->finish;
+$dbh->disconnect;
